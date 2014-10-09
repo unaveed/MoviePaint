@@ -122,16 +122,16 @@ public class PaintView extends View {
             PointF center = new PointF(mContentRect.centerX(), mContentRect.centerY());
             mPoints.add(center);
 
-            float maxRadius = Math.min(mContentRect.width() * 0.5f, mContentRect.height() * 0.5f);
-            float minRadius = 0.50f * maxRadius;
+            float maxRadius = Math.min(mContentRect.width() * 0.45f, mContentRect.height() * 0.45f);
+            float minRadius = 0.5f * maxRadius;
             mRadius = minRadius + (maxRadius - minRadius) * 0.5f;
-            int pointCount = 50;
+            int pointCount = 60;
 
             for (int pointIndex = 0; pointIndex < pointCount; pointIndex += 3)
             {
                 // Control 1
                 PointF control1 = new PointF();
-                float control1Radius = mRadius + (float)(Math.random() - 0.5) * 2.0f * 8.0f;
+                float control1Radius = mRadius + (float)(Math.random() - 0.5) * 6.0f * 10.0f;
                 control1.x = center.x + control1Radius *
                         (float)Math.cos(((double)pointIndex / (double)pointCount) * 2.0 * Math.PI);
                 control1.y = center.y + control1Radius *
@@ -139,7 +139,7 @@ public class PaintView extends View {
 
                 // Control 2
                 PointF control2 = new PointF();
-                float control2Radius = mRadius + (float)(Math.random() - 0.5) * 2.0f * 8.0f;
+                float control2Radius = mRadius + (float)(Math.random() - 0.5) * 6.0f * 12.0f;
                 control2.x = center.x + control2Radius *
                         (float)Math.cos(((double)pointIndex / (double)pointCount) * 2.0 * Math.PI);
                 control2.y = center.y + control2Radius *

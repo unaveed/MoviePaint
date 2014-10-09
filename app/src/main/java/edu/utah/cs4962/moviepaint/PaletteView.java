@@ -3,15 +3,22 @@ package edu.utah.cs4962.moviepaint;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +38,7 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
 
     public PaletteView(Context context) {
         super(context);
-        setBackgroundColor(Color.WHITE);
+        setBackground(new Palette());
 
         addColor(Color.RED);
         addColor(Color.YELLOW);
@@ -40,7 +47,7 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
         addColor(Color.MAGENTA);
         addColor(Color.BLUE);
         addColor(Color.BLACK);
-        addColor(Color.GRAY);
+        addColor(Color.WHITE);
     }
 
     public OnActiveColorChangedListener getOnActiveColorChangedListener ()
@@ -91,6 +98,15 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
 
     public void addColor (int color)
     {
+        // Prevent the palette from getting to crowded
+        if(getChildCount() > 10)
+        {
+            Toast.makeText(getContext(),
+                    "Palette is full, remove a color before adding more.",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         for(int matchingColor : getColors())
         {
             if(matchingColor == color)
@@ -102,6 +118,7 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
         paintView.setOnSplotchTouchListener(this);
         // Put the boolean here to prevent user from adding paint view
         addView(paintView);
+        invalidate();
     }
 
     public void removeColor(int color)
@@ -203,7 +220,7 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
         }
 
         Rect layoutRect = new Rect();
-        int size = 75;
+        int size = 100;
         // Set the area of the oval
         layoutRect.left = getPaddingLeft() + size;
         layoutRect.top = getPaddingTop() + size;
@@ -212,8 +229,8 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
 
         for (int childIndex = 0; childIndex < getChildCount(); childIndex++) {
             double angle = (double) childIndex / (double) getChildCount() * 2.0 * Math.PI;
-            int childCenterX = (int)(layoutRect.centerX() +  layoutRect.width() * 0.5 * Math.cos(angle));
-            int childCenterY = (int)(layoutRect.centerY() + layoutRect.height() * 0.5 * Math.sin(angle));
+            int childCenterX = (int)(layoutRect.centerX() +  layoutRect.width() * 0.45 * Math.cos(angle));
+            int childCenterY = (int)(layoutRect.centerY() + layoutRect.height() * 0.45 * Math.sin(angle));
 
             // Set the size of the boxes
             View child = getChildAt(childIndex);
@@ -253,14 +270,14 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
                     if(!inBoundary(startX,startY))
                         removeColor(child.getColor());
 
+                    // Snap splotch back to original position if it's still on palette
+                    if(mSplotchLocations.containsKey(child))
+                        snapSplotchToOrigin(child, startX, startY);
+
                     // Check if active splotch was dropped on another splotch
                     PaintView droppedOnSplotch = onTopOfSplotch(child, startX, startY);
                     if(droppedOnSplotch != null)
                         addColor(mixColors(child.getColor(), droppedOnSplotch.getColor()));
-
-                    // Snap splotch back to original position if it's still on palette
-                    if(mSplotchLocations.containsKey(child))
-                        snapSplotchToOrigin(child, startX, startY);
                 }
             }
         }
@@ -330,7 +347,7 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
     {
         PointF point = mSplotchLocations.get(splotch);
         ObjectAnimator animator = new ObjectAnimator();
-        animator.setDuration(500);
+        animator.setDuration(300);
         animator.setTarget(splotch);
 
         float centerX = splotch.getWidth() / 2;
@@ -349,6 +366,61 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
                 PropertyValuesHolder.ofFloat("y", setY));
 
         animator.start();
+    }
+
+    private class Palette extends Drawable
+    {
+        @Override
+        public void draw (Canvas canvas)
+        {
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setColor(Color.rgb(227, 190, 122));
+            Path path = new Path();
+            int points = 250;
+
+            RectF rect = new RectF();
+            rect.left = getPaddingLeft();
+            rect.top = getPaddingTop();
+            rect.right = getWidth() - getPaddingRight();
+            rect.bottom = getHeight() - getPaddingBottom();
+            float radiusX = rect.width() / 2;
+            float radiusY = rect.height() / 2;
+
+            for (int pointIndex = 0; pointIndex < points; pointIndex += 3) {
+                PointF point = new PointF();
+
+                double twoPI = 2.0 * Math.PI;
+
+                point.x = rect.centerX() + radiusX * (float)
+                        Math.cos(twoPI * ((double) pointIndex / (double) points));
+                point.y = rect.centerY() + radiusY * (float)
+                        Math.sin(twoPI * ((double) pointIndex / (double) points));
+
+                if (pointIndex == 0)
+                    path.moveTo(point.x, point.y);
+                else
+                    path.lineTo(point.x, point.y);
+            }
+            canvas.drawPath(path, paint);
+        }
+
+        @Override
+        public void setAlpha (int i)
+        {
+
+        }
+
+        @Override
+        public void setColorFilter (ColorFilter colorFilter)
+        {
+
+        }
+
+        @Override
+        public int getOpacity ()
+        {
+            return 0;
+        }
     }
 }
 

@@ -61,13 +61,16 @@ public class PaintActivity extends Activity {
     {
         LinearLayout stripMenu = new LinearLayout(this);
         stripMenu.setOrientation(LinearLayout.HORIZONTAL);
-        stripMenu.setBackgroundColor(Color.rgb(191,204,12));
+//        stripMenu.setBackgroundColor(Color.rgb(191,204,12));
 
         Button activeColorStripButton = new Button(this);
-        activeColorStripButton.setBackgroundColor(PaletteView.mActiveColor);
+        if(PaletteView.mActiveColor == 0)
+            activeColorStripButton.setBackgroundColor(Color.BLACK);
+        else
+            activeColorStripButton.setBackgroundColor(PaletteView.mActiveColor);
 
         Button createModeButton = new Button(this);
-        createModeButton.setText("Create");
+        createModeButton.setText("Colors");
         createModeButton.setTextSize(35.0f);
         createModeButton.setBackgroundColor(Color.rgb(10, 99, 178));
         createModeButton.setTextColor(Color.rgb(255, 255, 255));
@@ -96,7 +99,7 @@ public class PaintActivity extends Activity {
 
         LinearLayout.LayoutParams createParams =
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.45f);
-        createParams.setMargins(0,5,5,5);
+        createParams.setMargins(5,5,5,5);
         stripMenu.addView(createModeButton, createParams);
 
         LinearLayout.LayoutParams activeStripParams =
@@ -106,7 +109,7 @@ public class PaintActivity extends Activity {
 
         LinearLayout.LayoutParams watchParams =
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.45f);
-        watchParams.setMargins(0,5,0,5);
+        watchParams.setMargins(0,5,5,5);
         stripMenu.addView(watchModeButton, watchParams);
 
         return stripMenu;
