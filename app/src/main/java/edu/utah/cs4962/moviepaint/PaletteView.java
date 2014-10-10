@@ -50,6 +50,20 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
         addColor(Color.WHITE);
     }
 
+    public PaletteView(Context context, ArrayList<Integer> colors)
+    {
+        super(context);
+        if(colors.size() == 0)
+        {
+            new PaletteView(context);
+        }
+        else
+        {
+            for(int color : colors)
+                addColor(color);
+        }
+    }
+
     public OnActiveColorChangedListener getOnActiveColorChangedListener ()
     {
         return mOnActiveColorChangedListener;
@@ -98,7 +112,7 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
 
     public void addColor (int color)
     {
-        // Prevent the palette from getting to crowded
+        // Prevent the palette from getting too crowded
         if(getChildCount() > 10)
         {
             Toast.makeText(getContext(),
@@ -123,9 +137,6 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
 
     public void removeColor(int color)
     {
-        if(getChildCount() < 3)
-            return;
-
         int activeColor = getActiveColor();
         if(activeColor == color)
             setActiveColor(Color.DKGRAY);
@@ -146,6 +157,13 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
             if(mOnActiveColorChangedListener != null)
                 mOnActiveColorChangedListener.onActiveColorChanged(this);
         }
+    }
+
+    public void clear()
+    {
+        int[] colors = getColors();
+        for(int color : colors)
+            removeColor(color);
     }
 
     @Override
@@ -268,7 +286,15 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
                 {
                     // Check if child was taken off the palette
                     if(!inBoundary(startX,startY))
-                        removeColor(child.getColor());
+                    {
+                        if(getChildCount() >= 3)
+                            removeColor(child.getColor());
+                        else
+                            Toast.makeText(getContext(),
+                                    "You need at least two colors on the palette, " +
+                                            "try adding more before deleting.",
+                                    Toast.LENGTH_LONG).show();
+                    }
 
                     // Snap splotch back to original position if it's still on palette
                     if(mSplotchLocations.containsKey(child))

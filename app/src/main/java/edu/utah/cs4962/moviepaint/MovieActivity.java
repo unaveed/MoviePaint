@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
-public class WatchModeActivity extends Activity
+public class MovieActivity extends Activity
 {
     MovieView mMovieView;
 

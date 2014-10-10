@@ -10,19 +10,37 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.gson.Gson;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PaintArea extends ViewGroup
 {
     private int mColor;
-    HashMap<Integer, Line> mLineMap;
-    int mIndex;
-    ImageView mTransformedView;
+    private static final String FILE_NAME = "lines.txt";
+    private HashMap<Integer, Line> mLineMap;
+    private int mIndex;
+    private ImageView mTransformedView;
 
     public void setColor (int color)
     {
         mColor = color;
+    }
+
+    public HashMap<Integer, Line> getLineMap ()
+    {
+        return mLineMap;
+    }
+
+    public void setLineMap (HashMap<Integer, Line> lineMap)
+    {
+        mLineMap = lineMap;
     }
 
     public PaintArea (Context context)
@@ -62,7 +80,7 @@ public class PaintArea extends ViewGroup
             if(PaletteView.mActiveColor == 0)
                 PaletteView.mActiveColor = Color.BLACK;
 
-                line.setmColor(PaletteView.mActiveColor);
+                line.setColor(PaletteView.mActiveColor);
 
             mLineMap.put(mIndex, line);
         }
@@ -83,7 +101,7 @@ public class PaintArea extends ViewGroup
             polylinePaint.setStrokeWidth(4.0f);
 
             Path polylinePath = new Path();
-            polylinePaint.setColor(mLineMap.get(i).getmColor());
+            polylinePaint.setColor(mLineMap.get(i).getColor());
 
             if(!mLineMap.isEmpty())
             {
@@ -98,16 +116,52 @@ public class PaintArea extends ViewGroup
         }
     }
 
+    public void saveLines(File directory)
+    {
+        try
+        {
+            Gson gson = new Gson();
+            String lines = gson.toJson(mLineMap);
+
+            File file = new File(directory, FILE_NAME);
+            FileWriter fileWriter = new FileWriter(file);
+
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write(lines);
+            bufferedWriter.close();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadLines(File directory)
+    {
+        try
+        {
+            File file = new File(directory, FILE_NAME);
+            FileReader fileReader = new FileReader(file);
+
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String lineMap = bufferedReader.readLine();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     private class Line
     {
         ArrayList<PointF> mPoints = new ArrayList<PointF>();
         int mColor;
 
-        public int getmColor ()
+        public int getColor ()
         {
             return mColor;
         }
-        public void setmColor (int color)
+        public void setColor (int color)
         {
             this.mColor = color;
         }

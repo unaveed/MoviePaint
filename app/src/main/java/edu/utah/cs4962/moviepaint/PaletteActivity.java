@@ -19,9 +19,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 
-public class CreateModeActivity extends Activity
+public class PaletteActivity extends Activity
 {
     PaletteView mPaletteView;
+    private ArrayList<Integer> mColors = new ArrayList<Integer>();
     private static final String FILE_NAME = "paletteColors.txt";
 
     @Override
@@ -32,7 +33,11 @@ public class CreateModeActivity extends Activity
         LinearLayout rootLayout = new LinearLayout(this);
         rootLayout.setOrientation(LinearLayout.VERTICAL);
 
-        mPaletteView = new PaletteView(this);
+        if(mColors.size() > 0)
+            mPaletteView = new PaletteView(this, mColors);
+        else
+            mPaletteView = new PaletteView(this);
+
         mPaletteView.setId(10);
 
         Button drawingButton = new Button(this);
@@ -70,22 +75,6 @@ public class CreateModeActivity extends Activity
         setContentView(rootLayout);
     }
 
-//    @Override
-//    protected void onSaveInstanceState(Bundle state)
-//    {
-//        super.onSaveInstanceState(state);
-//        state.putSerializable("selectedColor", mPaletteView.getActiveColor());
-//        Log.i("Putting", "Dat work in");
-//    }
-//
-//    @Override
-//    protected void onRestoreInstanceState(Bundle savedInstanceState)
-//    {
-//        super.onRestoreInstanceState(savedInstanceState);
-//        mPaletteView.setActiveColor(savedInstanceState.getInt("selectedColor"));
-//        Log.i("Inside yo", "azz homie");
-//    }
-
     @Override
     protected void onPause()
     {
@@ -98,33 +87,14 @@ public class CreateModeActivity extends Activity
     {
         super.onResume();
         loadPalette();
-    }
-
-    private void openPaintActivity ()
-    {
-        Intent intent = new Intent(this, PaintActivity.class);
-        startActivity(intent);
-    }
-
-    private void savePalette()
-    {
-        Gson gson = new Gson();
-
-        String paletteColors = gson.toJson(mPaletteView.getColors());
-        try
+        if(mColors.size() > 0)
         {
-            File file = new File(getFilesDir(), FILE_NAME);
-            FileWriter fileWriter = new FileWriter(file);
-
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write(paletteColors);
-            bufferedWriter.close();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
+            mPaletteView.clear();
+            for(int color : mColors)
+                mPaletteView.addColor(color);
         }
     }
+
     private void loadPalette()
     {
         try
@@ -133,12 +103,42 @@ public class CreateModeActivity extends Activity
             FileReader reader = new FileReader(file);
             BufferedReader bufferedReader = new BufferedReader(reader);
 
-            String palette = bufferedReader.readLine();
+            String paletteColor = null;
+            do
+            {
+                paletteColor = bufferedReader.readLine();
+                mColors.add(Integer.parseInt(paletteColor));
+            }
+            while(paletteColor != null);
             bufferedReader.close();
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
+    }
+
+    private void savePalette()
+    {
+        try
+        {
+            File file = new File(getFilesDir(), FILE_NAME);
+            FileWriter fileWriter = new FileWriter(file);
+
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            for(int color : mPaletteView.getColors())
+                bufferedWriter.write(color + "\n");
+            bufferedWriter.close();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void openPaintActivity ()
+    {
+        Intent intent = new Intent(this, PaintActivity.class);
+        startActivity(intent);
     }
 }
