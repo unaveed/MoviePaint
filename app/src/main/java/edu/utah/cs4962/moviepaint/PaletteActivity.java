@@ -10,8 +10,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.google.gson.Gson;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,7 +21,7 @@ public class PaletteActivity extends Activity
 {
     PaletteView mPaletteView;
     private ArrayList<Integer> mColors = new ArrayList<Integer>();
-    private static final String FILE_NAME = "paletteColors.txt";
+    private final String mPaletteFile = "paletteColors.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -99,7 +97,7 @@ public class PaletteActivity extends Activity
     {
         try
         {
-            File file = new File(getFilesDir(), FILE_NAME);
+            File file = new File(getFilesDir(), mPaletteFile);
             FileReader reader = new FileReader(file);
             BufferedReader bufferedReader = new BufferedReader(reader);
 
@@ -122,7 +120,7 @@ public class PaletteActivity extends Activity
     {
         try
         {
-            File file = new File(getFilesDir(), FILE_NAME);
+            File file = new File(getFilesDir(), mPaletteFile);
             FileWriter fileWriter = new FileWriter(file);
 
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
