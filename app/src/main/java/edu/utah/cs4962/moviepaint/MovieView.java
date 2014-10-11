@@ -15,24 +15,12 @@ public class MovieView extends View
     private int mSeekPosition;
     private HashMap<Integer, Line> mLineMap;
 
-    // Delete this shit
-    private long mStartTime;
-    private boolean mPauseAnimation;
-    private boolean mPlayAnimation;
-
     public MovieView (Context context)
     {
         super(context);
         setBackgroundColor(Color.rgb(255, 255, 255));
         mLineMap = PaintAreaView.mLineMap;
         mSeekPosition = 0;
-    }
-
-    public MovieView (Context context, HashMap<Integer, Line> lineMap)
-    {
-        super(context);
-        setBackgroundColor(Color.rgb(255,255,255));
-        mLineMap = lineMap;
     }
 
     public int getSeekPosition ()
@@ -110,20 +98,5 @@ public class MovieView extends View
         float points = (float) pointCount * percent;
 
         return (long) points;
-    }
-
-    public void play()
-    {
-        mStartTime = System.currentTimeMillis();
-        mPauseAnimation = false;
-        mPlayAnimation = true;
-
-        postInvalidate();
-    }
-
-    public void pause()
-    {
-        mPauseAnimation = true;
-        mPlayAnimation = false;
     }
 }

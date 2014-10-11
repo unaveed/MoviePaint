@@ -334,18 +334,23 @@ public class PaletteView extends ViewGroup implements PaintView.OnSplotchTouchLi
         return Color.rgb(r,g,b);
     }
 
+    /**
+     * Determines whether the coordinates x, y are
+     * within the palette.
+     */
     private boolean inBoundary(float x, float y)
     {
-        double centerX = getWidth() / 2;
-        double centerY = getHeight() / 2 ;
+        double radiusX = getWidth() / 2;
+        double radiusY = getHeight() / 2 ;
 
-        double topX = Math.pow(x - centerX, 2);
-        double topY = Math.pow(y - centerY, 2);
+        double topX = Math.pow(x - radiusX, 2);
+        double topY = Math.pow(y - radiusY, 2);
 
-        double eX = Math.pow(getWidth() / 2 , 2);
-        double eY = Math.pow(getHeight() / 2, 2);
-
-        return topX / eX + topY / eY <= 1;
+        double distance = (topX / Math.pow(getWidth() / 2 , 2)) +
+                          (topY / Math.pow(getHeight() / 2, 2));
+        if(distance <= 1)
+            return true;
+        return false;
     }
 
     private PaintView onTopOfSplotch(PaintView activeSplotch, float x, float y)

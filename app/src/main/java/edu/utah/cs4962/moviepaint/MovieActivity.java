@@ -12,6 +12,12 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+
 /**
  * Allows the user to watch the painting be redrawn
  * on the screen.
@@ -21,8 +27,10 @@ public class MovieActivity extends Activity
     private MovieView mMovieView;
     private boolean mIsPlay;
     private ImageButton mControl;
+    private SeekBar mSeekBar;
+    private int mSeekPosition = 0;
+    private final String mFileName = "position.txt";
 
-    @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -45,36 +53,35 @@ public class MovieActivity extends Activity
             {
                 if(mIsPlay)
                 {
-                    mControl.setImageResource(R.drawable.play);
+                    mIsPlay = false;
+                    play();
                 }
                 else
                 {
-                    mControl.setImageResource(R.drawable.stop);
+                    mIsPlay = true;
                 }
-                mIsPlay = !mIsPlay;
+                changeButton();
+                play();
              }
         });
 
-        SeekBar seekBar = new SeekBar(this);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+        mSeekBar = new SeekBar(this);
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
         {
             @Override
             public void onProgressChanged (SeekBar seekBar, int i, boolean b)
             {
                 mMovieView.setSeekPosition(i);
-                mMovieView.play();
             }
 
             @Override
             public void onStartTrackingTouch (SeekBar seekBar)
             {
-
             }
 
             @Override
             public void onStopTrackingTouch (SeekBar seekBar)
             {
-
             }
         });
 
@@ -84,7 +91,7 @@ public class MovieActivity extends Activity
                      LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.90f);
 
         movieControls.addView(mControl, controlParams);
-        movieControls.addView(seekBar, seekBarParams);
+        movieControls.addView(mSeekBar, seekBarParams);
 
         Button button = new Button(this);
         button.setText("Back to drawing");
@@ -128,21 +135,118 @@ public class MovieActivity extends Activity
         setContentView(rootLayout);
     }
 
+
+
     private void openPaintActivity ()
     {
         Intent intent = new Intent(this, PaintActivity.class);
         startActivity(intent);
     }
 
+    /**
+     * Increments the seekBar by 1 every 100 milliseconds.
+     */
+    private void play()
+    {
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run ()
+            {
+                while(!Thread.interrupted() && mSeekPosition <= 100)
+                {
+                    try
+                    {
+                        Thread.sleep(100);
+                        runOnUiThread(new Runnable()
+                        {
+                            @Override
+                            public void run ()
+                            {
+                                if(mIsPlay)
+                                    mSeekBar.setProgress(mSeekPosition++);
+                                else
+                                    return ;
+                            }
+                        });
+                    }
+                    catch(Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private void stop()
+    {
+        mIsPlay = false;
+        mSeekBar.setProgress(mSeekPosition);
+        mSeekPosition = 0;
+    }
+
+    private void savePosition ()
+    {
+        try
+        {
+            File file = new File(getFilesDir(), mFileName);
+            FileWriter fileWriter = new FileWriter(file);
+
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write(mSeekPosition + "\n");
+            bufferedWriter.close();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadPosition()
+    {
+        try
+        {
+            File file = new File(getFilesDir(), mFileName);
+            FileReader fileReader = new FileReader(file);
+
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String savedPosition = bufferedReader.readLine();
+            int position = Integer.parseInt(savedPosition);
+            mSeekPosition = position;
+            mSeekBar.setProgress(mSeekPosition);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void changeButton()
+    {
+        if(!mIsPlay)
+            mControl.setImageResource(R.drawable.play);
+        else
+            mControl.setImageResource(R.drawable.stop);
+
+        if(mSeekBar.getProgress() == 100)
+        {
+            mSeekPosition = 0;
+            mSeekBar.setProgress(0);
+        }
+    }
+
     @Override
     protected void onPause()
     {
         super.onPause();
+        savePosition();
     }
 
     @Override
     protected void onResume()
     {
         super.onResume();
+        loadPosition();
     }
 }
