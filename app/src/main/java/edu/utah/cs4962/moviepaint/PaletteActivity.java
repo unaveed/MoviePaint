@@ -40,7 +40,7 @@ public class PaletteActivity extends Activity
 
         Button drawingButton = new Button(this);
         drawingButton.setText("Back to drawing");
-        drawingButton.setTextSize(30.0f);
+        drawingButton.setTextSize(14.0f);
         drawingButton.setBackgroundColor(Color.rgb(10, 99, 178));
         drawingButton.setTextColor(Color.rgb(255,255,255));
         drawingButton.setOnClickListener(new View.OnClickListener()

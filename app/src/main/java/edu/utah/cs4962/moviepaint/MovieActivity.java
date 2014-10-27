@@ -95,7 +95,7 @@ public class MovieActivity extends Activity
 
         Button button = new Button(this);
         button.setText("Back to drawing");
-        button.setTextSize(30.0f);
+        button.setTextSize(14.0f);
         button.setBackgroundColor(Color.rgb(255, 75, 66));
         button.setTextColor(Color.rgb(255,255,255));
         button.setOnClickListener(new View.OnClickListener()

@@ -85,7 +85,7 @@ public class PaintActivity extends Activity {
 
         Button createModeButton = new Button(this);
         createModeButton.setText("Colors");
-        createModeButton.setTextSize(30.0f);
+        createModeButton.setTextSize(14.0f);
         createModeButton.setTextColor(Color.WHITE);
         if(PaletteView.mActiveColor == Color.WHITE)
             createModeButton.setTextColor(Color.BLACK);
@@ -105,7 +105,7 @@ public class PaintActivity extends Activity {
 
         Button watchModeButton = new Button(this);
         watchModeButton.setText("Watch");
-        watchModeButton.setTextSize(30.0f);
+        watchModeButton.setTextSize(14.0f);
         watchModeButton.setBackgroundColor(Color.rgb(255, 75, 66));
         watchModeButton.setTextColor(Color.rgb(255, 255, 255));
         watchModeButton.setOnClickListener(new View.OnClickListener()
@@ -119,7 +119,7 @@ public class PaintActivity extends Activity {
 
         Button resetCanvas = new Button(this);
         resetCanvas.setText("Reset");
-        resetCanvas.setTextSize(30.0f);
+        resetCanvas.setTextSize(14.0f);
         resetCanvas.setTextColor(Color.WHITE);
         resetCanvas.setBackgroundColor(Color.rgb(10, 99, 178));
         resetCanvas.setOnClickListener(new View.OnClickListener()
